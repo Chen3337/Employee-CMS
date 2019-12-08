@@ -1,0 +1,25 @@
+{
+  "name": "employee-cms",
+  "version": "1.0.0",
+  "description": "node package for employee-cms",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chen3337/Employee-CMS.git"
+  },
+  "author": "zhen yong chen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chen3337/Employee-CMS/issues"
+  },
+  "homepage": "https://github.com/Chen3337/Employee-CMS#readme",
+  "dependencies": {
+    "cfonts": "^2.4.5",
+    "console.table": "^0.10.0",
+    "inquirer": "^7.0.0",
+    "mysql": "^2.17.1"
+  }
+}
