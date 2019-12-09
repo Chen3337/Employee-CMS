@@ -15,4 +15,16 @@ CFonts.say('Employee|Manager!', {
     maxLength: '0',             
 });
 
+var mainManuOptions = ["veiw all employees", "veiw all employees by department", "veiw all employees by manager", "add employee", "remove employee", "update employee manager", "update employee role","veiw roles","add roles", "remove roles", "add departments", "remove departments" ,"veiw all departments", "quit"]
 
+
+function mainManu(){
+    inquirer.prompt([{
+        type : "rawlist",
+        name : "answer",
+        message : "what may i help you with?",
+        choices : mainManuOptions
+    }
+    ])
+}
+mainManu();
