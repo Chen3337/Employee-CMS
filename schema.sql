@@ -8,7 +8,7 @@ CREATE TABLE employee
   first_name varchar (30) NOT NULL,
   last_name varchar (30) NOT NULL,
   role_id int NOT NULL,
-  manager_id int NOT NULL,
+  manager_id int,
   PRIMARY KEY(id)
 );
 
