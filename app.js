@@ -46,17 +46,25 @@ function mainManu(){
     ]).then(function(answer){
         switch(answer.answer){
             case("veiw all employee"):
+            veiwAllEmployees();
+            break;
             case("veiw all role"):
             case("veiw all department"):
-                veiwdatas(answer.answer);
+            veiwdatas(answer.answer);
             break;
             case("add employee"):
+            veiwRoles();
+            break;
             case("add role"):
+            break;
             case("add departments"):
             break;
             case("remove employee"):
             case("remove roles"):
             case("remove departments"):
+            break;
+            default:
+                process.exit(11);
             break;
 
 
@@ -64,7 +72,7 @@ function mainManu(){
         
     });
 }
-
+// gets data from the mysql and display it
 function veiwdatas(choosed){
     var n = choosed.split(" ");
     var table = n[n.length - 1];
@@ -74,6 +82,65 @@ function veiwdatas(choosed){
         mainManu();
     });
 }
+function veiwAllEmployees(){
+    var query = `SELECT first_name, last_name, title, salary, name, manager_name FROM employee join role ON employee.role_id = role.id
+    join department ON role.department_id = department.id`;
+    connection.query(query, function(err, results){
+        if(err) {throw err};
+        console.table(results);
+        mainManu();
+    });
+}
 
+function addEmployee(roles, managers){
+    inquirer.prompt([
+        {
+            type : "input",
+            name : "firstName",
+            message : "Enter the first name: "
+        },
+        {
+            type : 'input',
+            name : "lastName",
+            message : "Enter the last name: "
+        },
+        {
+            type : "rawlist",
+            name : "role",
+            message : "Choose a role",
+            choices : roles
+        },
+        {
+            type : "rawlist",
+            name : "manager",
+            message : "choose a manager",
+            choices : managers
+        }
+    ]).then(function(results){
+        mainManu();
+    })
+    
+}
+
+function veiwRoles(){
+
+    connection.query(`SELECT title FROM role`, function(err, results){
+        if(err) {throw err};
+        var result = [];
+        for(i = 0; i < results.length; i++){
+            result.push(results[i].title);
+        }
+        connection.query("SELECT first_name, last_name, id FROM employee",function(err, managerNames){
+            if(err) {throw err};
+            var names = ["no manager"];
+            for(i=0; i < managerNames.length; i++){
+                var name = managerNames[i].first_name + " " + managerNames[i].last_name;
+                names.push(name);
+            }
+            addEmployee(result, names);
+        })
+        
+    });
+}
 
 mainManu();
