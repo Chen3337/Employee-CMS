@@ -53,7 +53,7 @@ function mainManu(){
             veiwdatas(answer.answer);
             break;
             case("add employee"):
-            veiwRoles();
+            addEmployeeInfos();
             break;
             case("add role"):
             break;
@@ -72,7 +72,7 @@ function mainManu(){
         
     });
 }
-// gets data from the mysql and display it
+// gets data from the mysql and display it for view role and department
 function veiwdatas(choosed){
     var n = choosed.split(" ");
     var table = n[n.length - 1];
@@ -82,6 +82,7 @@ function veiwdatas(choosed){
         mainManu();
     });
 }
+// it will return all employee information for view all employees
 function veiwAllEmployees(){
     var query = `SELECT first_name, last_name, title, salary, name, manager_name FROM employee join role ON employee.role_id = role.id
     join department ON role.department_id = department.id`;
@@ -91,7 +92,7 @@ function veiwAllEmployees(){
         mainManu();
     });
 }
-
+// ask questions for a new employee for add employees
 function addEmployee(roles, managers){
     inquirer.prompt([
         {
@@ -105,7 +106,7 @@ function addEmployee(roles, managers){
             message : "Enter the last name: "
         },
         {
-            type : "rawlist",
+            type : "list",
             name : "role",
             message : "Choose a role",
             choices : roles
@@ -117,18 +118,29 @@ function addEmployee(roles, managers){
             choices : managers
         }
     ]).then(function(results){
-        mainManu();
+        var roleID = results.role.charAt(0);
+        if(results.manager === "no manager"){
+            var managerName = null;
+        }
+        else{
+            var managerName = results.manager;
+        }
+        var query = `INSERT INTO employee(first_name, last_name, role_id, manager_name) VALUE (?, ?,${roleID}, "${managerName}");`;
+        connection.query(query,[results.firstName.trim(), results.lastName.trim()],function(err){
+            if (err) throw err;
+            mainManu();
+        });
     })
     
 }
-
-function veiwRoles(){
-
-    connection.query(`SELECT title FROM role`, function(err, results){
+// gets the information needed to add employee
+function addEmployeeInfos(){
+    connection.query(`SELECT title, id FROM role`, function(err, results){
         if(err) {throw err};
         var result = [];
         for(i = 0; i < results.length; i++){
-            result.push(results[i].title);
+            var roles = results[i].id + " : " + results[i].title;
+            result.push(roles);
         }
         connection.query("SELECT first_name, last_name, id FROM employee",function(err, managerNames){
             if(err) {throw err};
