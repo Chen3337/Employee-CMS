@@ -32,7 +32,7 @@ connection.connect(function (err) {
     console.log("connected as id " + connection.threadId);
 });
 
-var mainManuOptions = ["veiw all employee", "add employee", "remove employee", "update employee role", "veiw all role", "add role", "remove role", "add departments", "remove department", "veiw all department", "quit"]
+var mainManuOptions = ["veiw all employee", "add employee", "remove employee", "update employee role", "update employee's manager", "veiw all role", "add role", "remove role", "add departments", "remove department", "veiw all department", "quit"]
 
 
 function mainManu() {
@@ -68,6 +68,9 @@ function mainManu() {
                 break;
             case ("update employee role"):
                 updateRole();
+                break;
+            case ("update employee's manager"):
+                updateManager();
                 break;
             default:
                 process.exit(11);
@@ -158,8 +161,8 @@ function addEmployeeInfos() {
     });
 }
 // adding a new role
-function addRole(){
-    connection.query("SELECT * FROM department;", function(err, departments){
+function addRole() {
+    connection.query("SELECT * FROM department;", function (err, departments) {
         var departmentList = [];
         for (i = 0; i < departments.length; i++) {
             var name = departments[i].id + " : " + departments[i].name;
@@ -167,91 +170,91 @@ function addRole(){
         };
         inquirer.prompt([
             {
-                type : "input",
-                name : "name",
-                message : "Type in the new role name :"
+                type: "input",
+                name: "name",
+                message: "Type in the new role name :"
             },
             {
-                type : "number",
-                name : "salary",
-                message : "Please enter the salary :",
-                validate: function(value){
-                    if (isNaN(value)){
+                type: "number",
+                name: "salary",
+                message: "Please enter the salary :",
+                validate: function (value) {
+                    if (isNaN(value)) {
                         return "please enter a number";
                     }
                     return true;
                 }
             },
             {
-                type : "list",
-                name : "department",
-                message : "choose a department",
-                choices : departmentList
+                type: "list",
+                name: "department",
+                message: "choose a department",
+                choices: departmentList
             }
-        ]).then(function(answers){
+        ]).then(function (answers) {
             var departID = answers.department.charAt(0);
-            connection.query("INSERT INTO role(title, salary, department_id) VALUE(?, ?, ?)", [answers.name.trim(), answers.salary, departID] , function(err){
-                if(err) throw err;
+            connection.query("INSERT INTO role(title, salary, department_id) VALUE(?, ?, ?)", [answers.name.trim(), answers.salary, departID], function (err) {
+                if (err) throw err;
                 mainManu();
             });
         });
     });
-    
+
 }
 //adding a new department
-function addDepartment(){
+function addDepartment() {
     inquirer.prompt([{
-        type : "input",
-        name : "name",
-        message : "Enter new department name"
-    }]).then(function(res){
-        connection.query("INSERT INTO department SET ?",{name : res.name}, function(err){
-            if(err) throw err;
+        type: "input",
+        name: "name",
+        message: "Enter new department name"
+    }]).then(function (res) {
+        connection.query("INSERT INTO department SET ?", { name: res.name }, function (err) {
+            if (err) throw err;
             mainManu();
         })
     });
 }
 //deleting
-function deleting(choosed){
+function deleting(choosed) {
     var n = choosed.split(" ");
     var table = n[n.length - 1];
     connection.query("SELECT * FROM " + table, function (err, results) {
         if (err) { throw err };
         var names = [];
-        if(table === "employee"){
+        if (table === "employee") {
             for (i = 0; i < results.length; i++) {
                 var name = results[i].id + " : " + results[i].first_name + " " + results[i].last_name;
                 names.push(name);
             }
         }
-        else if (table === "role"){
+        else if (table === "role") {
             for (i = 0; i < results.length; i++) {
                 var roles = results[i].id + " : " + results[i].title;
                 names.push(roles);
             }
         }
-        else{
+        else {
             for (i = 0; i < results.length; i++) {
                 var department = results[i].id + " : " + results[i].name;
                 names.push(department);
             }
         }
         inquirer.prompt([{
-            type : "list",
-            name : "name",
-            message : "choose the " + table + "you want to delete",
-            choices : names
-        }]).then(function(anser){
+            type: "list",
+            name: "name",
+            message: "choose the " + table + "you want to delete",
+            choices: names
+        }]).then(function (anser) {
             var id = anser.name.charAt(0);
-            connection.query("DELETE FROM " + table +" WHERE id = " + id, function(err){
-                if(err) throw err;
+            connection.query("DELETE FROM " + table + " WHERE id = " + id, function (err) {
+                if (err) throw err;
                 mainManu();
             })
         });
     });
 }
 // updating employee role
-function updateRole(){
+function updateRole() {
     connection.query("SELECT * FROM employee", function (err, results) {
         var names = [];
         for (i = 0; i < results.length; i++) {
@@ -267,27 +270,61 @@ function updateRole(){
             }
             inquirer.prompt([
                 {
-                type : "list",
-                name : "name",
-                message : "choose the employee you want to update",
-                choices : names
+                    type: "list",
+                    name: "name",
+                    message: "choose the employee you want to update",
+                    choices: names
                 },
                 {
-                    type : "list",
-                    name : "role",
-                    message : "choose the new role",
-                    choices : result
+                    type: "list",
+                    name: "role",
+                    message: "choose the new role",
+                    choices: result
                 }
-            ]).then(function(data){
+            ]).then(function (data) {
                 var EmployeeID = data.name.charAt(0);
                 var roleID = data.role.charAt(0);
-                connection.query("UPDATE employee SET role_id = ? WHERE id = ?",[roleID, EmployeeID],function(err){
-                    if(err) throw err;
+                connection.query("UPDATE employee SET role_id = ? WHERE id = ?", [roleID, EmployeeID], function (err) {
+                    if (err) throw err;
                     mainManu();
                 })
             });
         });
-        
+
+    });
+}
+// update manager name for employees
+function updateManager() {
+    connection.query("SELECT * FROM employee", function (err, results) {
+        var names = [];
+        var managers = ["null"];
+        for (i = 0; i < results.length; i++) {
+            var name = results[i].id + " : " + results[i].first_name + " " + results[i].last_name;
+            var manger = results[i].first_name + " " + results[i].last_name;
+            names.push(name);
+            managers.push(manger);
+        }
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "name",
+                message: "choose the employee you want to update",
+                choices: names
+            },
+            {
+                type: "rawlist",
+                name: "manager",
+                message: "choose the new Manager",
+                choices: managers
+            }
+        ]).then(function (data) {
+            var EmployeeID = data.name.charAt(0);
+            var manager = data.manager;
+            connection.query("UPDATE employee SET manager_name = ? WHERE id = ?", [manager, EmployeeID], function (err) {
+                if (err) throw err;
+                mainManu();
+            })
+        });
     });
 }
 mainManu();
