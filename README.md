@@ -2,11 +2,13 @@
 content management system of Employees in a company
 ### project links
 github : (https://github.com/Chen3337/Employee-CMS.git)
-video presentation ()
+video presentation (https://drive.google.com/file/d/1dwxMgMor6AiQ10Z9Xafmy3muhiixhphc/view)
 
 ### project details
 
 have to clone data from "https://github.com/Chen3337/Employee-CMS.git" and install node modules, need mysql workbench for this and change password to "" (nothing) in workbench or enter password in app.js line 22.
+
+add database to workbench using schema.sql
 
 run the app.js using node and it should print EMPLOYEE MANAGEMENT in title and ask what you want to do.
 
