@@ -66,6 +66,9 @@ function mainManu() {
             case ("remove department"):
                 deleting(answer.answer);
                 break;
+            case ("update employee role"):
+                updateRole();
+                break;
             default:
                 process.exit(11);
                 break;
@@ -245,6 +248,46 @@ function deleting(choosed){
                 mainManu();
             })
         });
+    });
+}
+// updating employee role
+function updateRole(){
+    connection.query("SELECT * FROM employee", function (err, results) {
+        var names = [];
+        for (i = 0; i < results.length; i++) {
+            var name = results[i].id + " : " + results[i].first_name + " " + results[i].last_name;
+            names.push(name);
+        }
+        connection.query(`SELECT title, id FROM role`, function (err, results) {
+            if (err) { throw err };
+            var result = [];
+            for (i = 0; i < results.length; i++) {
+                var roles = results[i].id + " : " + results[i].title;
+                result.push(roles);
+            }
+            inquirer.prompt([
+                {
+                type : "list",
+                name : "name",
+                message : "choose the employee you want to update",
+                choices : names
+                },
+                {
+                    type : "list",
+                    name : "role",
+                    message : "choose the new role",
+                    choices : result
+                }
+            ]).then(function(data){
+                var EmployeeID = data.name.charAt(0);
+                var roleID = data.role.charAt(0);
+                connection.query("UPDATE employee SET role_id = ? WHERE id = ?",[roleID, EmployeeID],function(err){
+                    if(err) throw err;
+                    mainManu();
+                })
+            });
+        });
+        
     });
 }
 mainManu();
